@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+    <title>profile</title>
+{% endblock %}
+{% block style %}
+    <style>
+        .user-data{
+        display:grid;
+        grid-template-columns:2fr 2fr 2fr 2fr 2fr 2fr;
+        }
+        .links{
+        display:flex;
+        justify-content:space-between;}
+    </style>
+{% endblock %}
+{% block content %}
+<body>
+<p style="font-size:25px;font-weight:bold"><u>Welcome :{{user}} :-</u></p>
+<div class="links">
+    <button style="font-size:16px;font-weight:bold;height:50px;width:180px">Update user :<a href="{% url 'accounts:edit_profile' %}">&#9998;</a></button>
+    <button onclick="location.href='{% url 'user_appoint' %}'" style="font-size:16px;font-weight:bold;height:50px;width:180px">Appoints user :</button>
+    <button onclick="location.href='{% url 'password_change' %}'" style="font-size:16px;font-weight:bold;height:50px;width:180px">password_change :</button>
+    {% if request.user.is_superuser %}
+    <button onclick="location.href='{% url 'accounts:view_users' %}'" style="font-size:16px;font-weight:bold;height:50px;width:190px">Users_Permissions :</button>
+    <button onclick="location.href='{% url 'accounts:register' %}'" style="font-size:16px;font-weight:bold;height:50px;width:120px">Add User :</button>
+    {% endif %}
+    </div>
+<br>
+<table border="1" cellpadding="8" cellspacing="0">
+        <tr style="height:40px">
+            <th style="width:80px">id</th>
+            <th style="width:80px">user</th>
+            <th style="width:80px">First_name</th>
+            <th style="width:80px">Last_name</th>
+            <th style="width:200px">Email</th>
+            <th style="width:120px">Phone</th>
+            <th style="width:150px">Address</th>
+            <th style="width:170px">jop</th>
+            <th style="width:60px">Age</th>
+            <th style="width:200px">image</th>
+        </tr>
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{user.id}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.first_name}}</td>
+        <td>{{user.last_name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.phone}}</td>
+        <td>{{user.address}}</td>
+        <td>{{qs.jop}}</td>
+        <td>{{qs.age}}</td>
+        <td><a href="{% url 'accounts:edit_image' user.id %}"><img src="{{ user.image.url }}" width="120" height="30"></a></td>
+    </tr>
+</table>
+<hr>
+{% endblock %}

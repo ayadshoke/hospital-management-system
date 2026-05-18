@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+    <title>patient_list</title>
+{% endblock %}
+{% block style %}
+    <style>
+        .links{
+        display:flex;
+        justify-content:space-between;
+    }
+    </style>
+{% endblock %}
+{% block content %}
+<body>
+
+<!--البحث باسم المريض-->
+<form method="POST" action="{% url 'patient_search' %}">
+    {% csrf_token %}
+    <label for="s" style="font-size:25px;font-weight:bold">Search :</label>
+    <input id="s" type="search" name="q" placeholder="search by name" value="{{q|default:''}}"
+           style="font-size:18px;font-weight:bold;width:250px;height:30px;background-color:lightgreen">
+    <input type="submit" value="search"
+           style="font-size:18px;font-weight:bold;width:150px;height:30px">
+</form>
+<hr>
+
+
+<!--بيانات المرضي -->
+<div class="links" style="font-size:20px;font-weight:bold;color:blue">
+    <p>Names Of Patients :-</p>
+    {% if messages %}
+    {% for message in messages %}
+    <p style="font-size:20px;font-weight:bold">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    <p><a href="{% url 'patient_list' %}?add=1">Add_Patient</a></p>
+</div>
+<table border="1" cellpadding="6" cellspacing="0"
+       style="text-align:center ; vertical-align:middle">
+    <thead>
+    <tr bgcolor="lightblue" style="height:50px;font-size:18px">
+        <th style="width:50px">serial</th>
+        <th style="width:250px">name</th>
+        <th style="width:100px">age</th>
+        <th style="width:180px">area</th>
+        <th>num_ cases</th>
+        <th style="width:100px">amount</th>
+        <th style="width:100px">Update</th>
+        <th style="width:100px">Delete</th>
+        <th style="width:100px">Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for pat in patients %}
+    <tr style="font-weight:bold;font-size:15px">
+        <td>{{forloop.counter}}</td>
+        <td>{{pat.name}}</td>
+        <td>{{pat.age}}</td>
+        <td>{{pat.area}}</td>
+        <td>{{pat.count}}</td>
+        <td>{{pat.amount}}</td>
+        <td><a href="{% url 'patient_update' pat.pk %}">&#9998;</a></td>
+        <td><a href="{% url 'patient_delete' pat.pk %}" onclick="return window.confirm({{ pat.id }})">&#10006;</a></td>
+        <td><a href="{% url 'patient_details' pat.pk %}">&#8618;</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+<br>
+<hr>
+
+<!--اضافة وتحديث بيانات مريض-->
+{% if show_add or update_id %}
+<h2>Add and Update patient</h2>
+{% if update_id %}Update Patient {% else %}Add Patient {% endif %}
+<form method="POST" id="#patient_form" action="
+{% if update_id %}
+{% url 'patient_update' update_id %}
+{% else %}
+{% url 'patient_form' %}
+{% endif %}">
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div style="font-size:18px;width:200px">
+        {{ field.label_tag }}
+        {{ field }}
+    </div>
+    {% endfor %}<br>
+    <button type="submit" style="width:100px;height:30px">{% if update_id %}Update{% else %}Add{% endif %}</button>
+    <h3><b style="color:red"><a href="javascript:history.back()">Back</a></b></h3>
+</form>
+{% endif %}
+<br><br>
+<hr>
+
+
+<!--عرض بيانات المريض-->
+
+{% if pat_details %}
+<h3><b style="color:red">PatientName : <u style="color:blue">{{pat.name}}</u></b></h3>
+<table border="1" cellpadding="8" cellspacing="0"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightgreen" style="height:40px">
+        <th>serial</th>
+        <th style="width:150px">depart name</th>
+        <th style="width:150px">doctor name</th>
+        <th style="width:150px">doctor email</th>
+        <th style="width:100px">detect</th>
+        <th style="width:100px">detect_value</th>
+        <th style="width:150px">date</th>
+        <th style="width:100px">day</th>
+        <th style="width:150px">employee</th>
+        <th style="width:150px">status</th>
+    </tr>
+    {% for p in pat_details %}
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{p.doctor.part.get_name_display}}</td>
+        <td>{{p.doctor}}</td>
+        <td>{{p.doctor.email}}</td>
+        <td>{{p.get_detect_display}}</td>
+        <td>{{p.detect_value}}</td>
+        <td>{{p.created_at|date:'Y-m-d'}}</td>
+        <td>{{p.created_at|date:'l'}}</td>
+        <td>{{p.employee}}</td>
+        <td>{{p.get_status_display}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h3><b style="color:red"><a href="javascript:history.back()">Back</a></b></h3>
+<br><br>
+{% endif %}
+{% endblock %}

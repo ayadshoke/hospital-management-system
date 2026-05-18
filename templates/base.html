@@ -1,0 +1,26 @@
+<!doctype html>
+{% load static %}
+<html lang="en" dir="ltr">
+<head>
+    {% include 'navbar.html' %}
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'format.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>main</title>
+    {% block title %}
+    {% endblock title %}
+
+    {% block style %}
+    {% endblock %}
+</head>
+<body>
+<div class="container">
+    {% include 'sidebar.html' %}
+
+    <main class="content">
+        {% block content %}
+        {% endblock content %}
+    </main>
+</div>
+</body>
+</html>

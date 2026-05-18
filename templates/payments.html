@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>Complete & Cancel Reservation</title>
+{% endblock %}
+{% block style %}
+<style>
+    .form-container{
+    display:grid;
+    grid-template-columns:3fr 5fr 4fr 3fr 2fr 2fr}
+
+    .links{
+        display:flex;
+        justify-content:space-between;}
+</style>
+{% endblock style %}
+
+{% block content %}
+<body>
+
+<!--البحث والفلترة بالتاريخ-->
+<form method="POST" action="{% url 'payments' %}">
+    {% csrf_token %}
+    <label style="font-size:20px;font-weight:bold"><b>Date :</b></label>
+    <input type="date" name="from" style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+    <button type="submit"><b>SHOW</b></button>
+</form>
+<br>
+
+<!--الفلتر بي الدكتور-->
+<div class="links">
+    <form action="{% url 'payments' %}" method="POST">
+        {% csrf_token %}
+        <label for="doctor" style="font-size:20px;font-weight:bold">Select Doctor :</label>
+        <select name="doc" id="doctor" onchange="this.form.submit()"
+                style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+            <option value="" selected></option>
+            {% for d in docs %}
+            <option value="{{d.id}}">{{d.name}}</option>
+            {% endfor %}
+        </select>
+    </form>
+             <!--        الفلتر بي نوع الكشف-->
+    <form action="{% url 'payments' %}" method="POST">
+        {% csrf_token %}
+        <label for="det" style="font-size:20px;font-weight:bold">Select Detect :</label>
+        <select name="detect" id="det" onchange="this.form.submit()"
+                style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+            <option value="" selected></option>
+            {% for value,label in detect_list %}
+            <option value="{{value}}">{{label}}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+               <!--        الفلتر بي حالة الكشف-->
+    <form action="{% url 'payments' %}" method="POST">
+        {% csrf_token %}
+            <label for="stat" style="font-size:20px;font-weight:bold">Select Status :</label>
+        <select name="status" id="stat" onchange="this.form.submit()"
+                style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+            <option value="" selected></option>
+            {% for value,label in st %}
+            <option value="{{value}}">{{label}}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+
+            <!--الفلتر بي حالة القسم -->
+    <form action="{% url 'payments' %}" method="POST">
+        {% csrf_token %}
+        <label for="prt" style="font-size:20px;font-weight:bold">Select Part :</label>
+        <select name="depart" id="prt" onchange="this.form.submit()"
+                style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+            <option value="" selected></option>
+            {% if depart %}
+            <option value="{{depart.id}}" selected>{{depart.get_name_display}}</option>
+            {% else %}
+            {% for value,label in part %}
+            <option value="{{value}}">{{label}}</option>
+            {% endfor %}
+            {% endif %}
+        </select>
+    </form>
+</div>
+
+<h2><b style="color:blue">Show Complete & Cancel Reservation :-</b></h2>
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightgreen" style="height:40px">
+        <th>serial</th>
+        <th>patient</th>
+        <th>area</th>
+        <th>doctor</th>
+        <th>depart</th>
+        <th>detect</th>
+        <th>value</th>
+        <th>employee</th>
+        <th>created_at</th>
+        <th>day</th>
+        {% for value,name in methods %}
+        <th>{{name}}</th>
+        {% endfor %}
+        <th>paid_date</th>
+        <th>paid_stat</th>
+        <th>status</th>
+        <th>total</th>
+    </tr>
+    {% for x in payment %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td style="font-size:14px">{{forloop.counter}}</td>
+        <td>{{x.appoint.patient.name }}</td>
+        <td>{{x.appoint.patient.area }}</td>
+        <td>{{x.appoint.doctor.name }}</td>
+        <td>{{x.appoint.doctor.part.get_name_display }}</td>
+        <td>{{x.appoint.get_detect_display }}</td>
+        <td>{{x.appoint.detect_value }}</td>
+        <td>{{x.appoint.employee }}</td>
+        <td>{{x.appoint.created_at|date:'Y-m-d' }}</td>
+        <td>{{x.appoint.created_at|date:'l'}}</td>
+        <td>{{x.cash}}</td>
+        <td>{{x.visa}}</td>
+        <td>{{x.cheque}}</td>
+        <td>{{x.bank}}</td>
+        <td>{{x.date|date:'Y-m-d'}}</td>
+        <td>{{x.appoint.paid_stat }}</td>
+        {% if x.appoint.status == '3'%}
+        <td bgcolor="green">{{x.appoint.get_status_display }}</td>
+        {% else %}
+        <td>{{x.appoint.get_status_display }}</td>
+        {% endif %}
+        <td>{{x.sum}}</td>
+
+    </tr>
+    {% endfor %}
+    <tr bgcolor="lightgreen" style="height:40px">
+        <td colspan="10"><b>Count cases : <u>{{ payment|length }}</u> <small>detects</small></b></td>
+        <td colspan="1"><b>{{cash}}</b></td>
+        <td colspan="1"><b>{{visa}}</b></td>
+        <td colspan="1"><b>{{cheque}}</b></td>
+        <td colspan="1"><b>{{bank}}</b></td>
+        <td colspan="5"><b>Total amount : {{ tot_amount }}</b></td>
+    </tr>
+</table>
+<button style="font-size:16px;font-weight:bold;width:100px"><a href="javascript:history.back()">Back</a></button>
+<button><a href="/payment/payments/?name=excel">load_excel</a></button>
+</body>
+{% endblock content %}

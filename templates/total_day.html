@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>total amount</title>
+{% endblock %}
+
+{% block style %}
+<style>
+        .form-container{
+        display:grid;
+        grid-template-columns:3fr 5fr 2fr}
+
+        .links{
+            display:flex;
+            justify-content:space-between;}
+    </style>
+{% endblock style %}
+
+{% block content %}
+<body>
+<p style="font-size:25px;font-weight:bold;color:red;text-align:center">Total_amount for avery day</p>
+<div class="links">
+    <form action="#" method="POST">
+        {% csrf_token %}
+        <label style="font-size:18px;font-weight:bold">Date_From:</label>
+        <input type="date" name="from"
+               style="width:230px;height:30px;background-color:lightgreen;font-size:18px">
+
+        <label style="font-size:18px;font-weight:bold">Date_To:</label>
+        <input type="date" name="to"
+               style="width:230px;height:30px;background-color:lightgreen;font-size:18px">
+        <button style="width:130px;height:35px;font-weight:bold;font-size:18px" type="submit">show</button>
+    </form>
+    <button style="width:130px;height:35px;font-weight:bold;font-size:18px"
+            onclick="window.location.reload(true)" title="refresh_page">&#x21bb;
+    </button>
+</div>
+<hr>
+<table border="1" cellspacing="1" cellpadding="8" style="text-align:center ; vertical-align:middle">
+    <tr style="font-size:16px;font-weight:bold">
+        <th style="width:70px">Serial</th>
+        <th style="width:180px">Month</th>
+        <th style="width:180px">Date</th>
+        <th style="width:100px">Day</th>
+        {% for value,name in method %}
+        <th style="width:120px">{{name}}</th>
+        {% endfor %}
+        <th style="width:100px">TotalValue</th>
+        <th style="width:80px">Cases</th>
+        <th style="width:80px">Receipts</th>
+        <th style="width:80px">Details</th>
+    </tr>
+    {% for x in data %}
+    <tr style="font-size:14px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{x.paid_date|date:'Y-F'}}</td>
+        <td>{{x.paid_date|date:'Y-m-d'}}</td>
+        <td>{{x.paid_date|date:'l'}}</td>
+        <td>{{x.cash}}</td>
+        <td>{{x.visa}}</td>
+        <td>{{x.cheque}}</td>
+        <td>{{x.bank}}</td>
+        <td>{{x.total_value}}</td>
+        <td>{{x.num}}</td>
+        <td>{{x.the_count}}</td>
+        <td><a href="{% url 'paid' x.paid_date %}">&#8618;</a></td>
+    </tr>
+    {% endfor %}
+    <tr style="font-size:16px;font-weight:bold;background-color:lightblue">
+        <td colspan="2">Cases : {{num}}</td>
+        <td colspan="2">Receipts : {{count}}</td>
+        <td colspan="1">{{cash}}</td>
+        <td colspan="1">{{visa}}</td>
+        <td colspan="1">{{cheque}}</td>
+        <td colspan="1">{{bank}}</td>
+        <td colspan="4">General_Total : {{total}}</td>
+    </tr>
+</table>
+<h2><b style="color:red"><a href="javascript:history.back()">Back</a></b></h2>
+</body>
+{% endblock content %}

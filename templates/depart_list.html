@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>depart_list</title>
+{% endblock %}
+
+{% block style %}
+<style>
+    .links{
+        display:flex;
+        justify-content:space-between;}
+</style>
+{% endblock %}
+
+
+
+<!--البحث برقم الدور -->
+{% block content%}
+<form action="{% url 'depart_search' %}" method="GET">
+    {% csrf_token %}
+    <label style="font-size:20px"><b>Choose Floor :</b></label><br>
+<!--    <button type="reset"><b>Search</b></button>-->
+    <a href="javascript:history.back()"><b>Back</b></a>
+    {% for value,label in floors %}
+    <input id="f" type="radio" name="num_floor" value="{{value}}" onclick="this.form.submit()">
+    <label for="f"><b style="color:blue;font-size:18px">{{label}}</b></label>
+    {% endfor %}
+</form>
+<br>
+
+
+<!--عرض بيانات الاقسام-->
+<div class="links">
+    <p style="font-size:20px;font-weight:bold">Departments :-</p>
+    <a href="{% url 'part_no_work' %}?add=1" style="font-size:20px;font-weight:bold;color:red">:- اقسام لم تعمل بعد</a>
+    <a href="{% url 'depart' %}?add=1" style="font-size:20px;font-weight:bold;color:red">Add Depart</a>
+</div>
+
+{% if not show_table and not id %}
+<!--<div style=";overflow-x:scroll;width:auto">-->
+<table border="2" cellpadding="6" cellspacing="0"
+       style="text-align:center;vertical-align:meddle">
+    <tr style="font-size:14px;font-weight:bold;height:25px">
+        <th style="width:50px">serial</th>
+        <th style="width:30px">name</th>
+        <th style="width:180px">floor</th>
+        <th style="width:150px">&#9742;</th>
+        <th style="width:150px">Doctors</th>
+        <th style="width:150px">Cases</th>
+        <th style="width:150px">Detects</th>
+        <th style="width:150px">Amount</th>
+    </tr>
+    {% for depart in departs %}
+    <tr style="font-size:16px;font-weight:bold;height:25px">
+        <td>{{forloop.counter}}</td>
+        <td>{{ depart.get_name_display }}</td>
+        <td>{{ depart.get_floor_display }}</td>
+        <td>{{ depart.phone }}</td>
+        <td title="show doctors details"><a href="{% url 'view_doctor' depart.slug %}">{{depart.doc}}</a></td>
+        <td><a href="{% url 'part_cases' depart.slug %}">{{depart.pat}}</a></td>
+        <td>
+            <form action="{% url 'paid_appoint' %}" method="POST">
+                {%csrf_token%}
+                <button onclick="location.href='{% url 'paid_appoint' %}'" name="part" value="{{depart.id}}"
+                        style="width:120px;height:25px">{{depart.detects}}</button>
+            </form>
+        </td>
+        <td>
+            <form action="{% url 'payments' %}" method="POST">
+                {%csrf_token%}
+                <button onclick="location.href='{% url 'payments' %}'" name="part_id" value="{{depart.id}}"
+                style="width:120px;height:25px">{{depart.amount}}</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    <tbody>
+    <tr bgcolor="lightgreen" style="font-size:18px;font-weight:bold;text-align:center">
+        <td colspan="3">the count of departs :{{count}}  <small>depart</small></td>
+        <td colspan="2">{{sum}}  <small>doctor</small></td>
+        <td colspan="1">{{pats}} <small>patient</small></td>
+        <td colspan="1">{{cases}} <small>detect</small></td>
+        <td colspan="1">{{amount}} <small>pound</small></td>
+    </tr>
+    </tbody>
+</table><br><br>
+<!--</div>-->
+{% endif %}
+<hr>
+
+
+<!--اضافة اقسام جديدة -->
+{% if show_add %}
+<h2><b>Add_Depart :</b></h2>
+<form method="POST" action="#" id="myForm" class="links">
+    {% csrf_token %}
+    <label for="dept" style="font-size:20px;font-weight:bold">Depart name : </label>
+    <select id="dept" name="depart" required
+            style="font-size:18px;font-weight:bold;width:150px;text-align:center;background-color:lightgreen">
+        <option value="" selected></option>
+        {% for value , label in list %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+    </select><br><br>
+    <label for="fl" style="font-size:20px;font-weight:bold">Floor_number : </label>
+    <select name="floor" id="fl" required
+            style="font-size:18px;font-weight:bold;width:150px;text-align:center;background-color:lightgreen">
+        <option value="" selected></option>
+        {% for value , label in floors %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+    </select><br><br>
+    <label style="font-size:20px;font-weight:bold">Phone number : </label>
+    <input type="number" name="phone" placeholder="Enter phone number" required
+    style="font-size:18px;font-weight:bold;width:150px;text-align:center;background-color:lightgreen"><br><br>
+    <button type="submit" style="font-size:15px;width:150px"><b>Add Depart</b></button>
+</form>
+{% endif %}
+
+
+<!--اقسام لم تعمل بعد  -->
+{% if show_table %}
+<p style="font-size:20px;font-weight:bold;color:red">:- Department  NO Work :-</p>
+<table border="2" cellpadding="6" cellspacing="0" style="width:70%;text-align:center">
+    <tr style="font-size:18px;font-weight:bold">
+        <th style="width:5%;font-size:15px">serial</th>
+        <th>name</th>
+        <th>floor</th>
+        <th>&#9742;</th>
+        <th>Doctors</th>
+        <th>Update</th>
+        <th>Delete</th>
+    </tr>
+    {% for depart in departs %}
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{ depart.get_name_display }}</td>
+        <td>{{ depart.get_floor_display }}</td>
+        <td>{{ depart.phone }}</td>
+        <td style="font-size:20px" title="show doctors details"><a href="{% url 'view_doctor' depart.slug %}">{{ depart.count }}</a></td>
+        <td><a href="{% url 'update_depart' depart.slug %}">&#9998;</a></td>
+        <td><a href="{% url 'delete_depart' depart.slug %}" onclick="return window.confirm({{ depart.id }})">&#10006;</a></td>
+    </tr>
+    {% endfor %}
+    <tbody>
+    <tr bgcolor="lightgreen" style="font-size:20px;font-weight:bold;text-align:center">
+        <td colspan="4">the count of departs :</td>
+        <td colspan="4">{{count}}  depart</td>
+    </tr>
+    </tbody>
+</table><br><br>
+<button style="font-size:18px;font-weight:bold;width:100px;height:35px" onclick="javascript:history.back()">Back</button><br><br>
+{% endif %}
+
+
+
+{% if id %}
+<p style="font-size:20px;font-weight:bold;text-align:center">Details Part :</p>
+<ul style="font-size:17px;font-weight:bold">
+    <li>Part name : {{part.get_name_display}}</li>
+    <li>Part name : {{part.get_floor_display}}</li>
+    <li>Part name : {{part.phone}}</li>
+</ul>
+<table border="2" cellpadding="6" cellspacing="0"
+       style="text-align:center ; vertical-align:middle">
+    <tr style="font-size:16px;font-weight:bold">
+        <th style="width:40px">serial</th>
+        <th style="width:170px">Patient</th>
+        <th style="width:50px">Age</th>
+        <th style="width:70px">Area</th>
+        <th style="width:100px">Date</th>
+        <th style="width:70px">Day</th>
+        <th style="width:100px">Doctor</th>
+        <th style="width:70px">Detect</th>
+        <th style="width:70px">Value</th>
+        <th style="width:100px">Employee</th>
+        <th style="width:80px">Status</th>
+
+    </tr>
+    {% for pat,key in patients %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{pat.name}}</td>
+        <td>{{ pat.age }}</td>
+        <td>{{ pat.area }}</td>
+        {% with app=pat.appointments_set.first  %}
+        <td>{{ app.created_at|date:"Y-m-d"}}</td>
+        <td>{{ app.created_at|date:"l"}}</td>
+        <td>{{ app.doctor }}</td>
+        <td>{{ app.get_detect_display}}</td>
+        <td>{{ app.detect_value}}</td>
+        <td>{{ app.employee}}</td>
+        <td>{{ app.get_status_display}}</td>
+        {% endwith %}
+
+
+    </tr>
+    {% endfor %}
+    <tbody>
+    <tr bgcolor="lightgreen" style="font-size:20px;font-weight:bold;text-align:center">
+        <td colspan="3">the count of departs :</td>
+        <td colspan="2">{{sum}}  doctor</td>
+        <td colspan="2">{{count}}  depart</td>
+    </tr>
+    </tbody>
+</table><br><br>
+{% endif %}
+
+{% endblock %}

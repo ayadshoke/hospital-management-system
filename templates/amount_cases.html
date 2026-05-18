@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    <title>total</title>
+{% endblock %}
+
+{% block content %}
+<h2><b style="color:red">Total_amount for doctor</b></h2>
+<form action="#" method="POST">
+    {% csrf_token %}
+    <label style="font-size:20px;font-weight:bold">Date_From :</label>
+    <input type="date" name="from"
+           style="font-size:16px;font-weight:bold;background-color:lightblue;width:200px;height:30px">
+
+    <label style="font-size:20px;font-weight:bold">Date_To :</label>
+    <input type="date" name="to"
+           style="font-size:16px;font-weight:bold;background-color:lightblue;width:200px;height:30px">
+    <button type="submit" style="width:70px;height:30px;font-size:18px"><b>show</b></button>
+</form><br><br>
+<hr>
+<div>
+    <ul style="font-size:18px;font-weight:bold">Details Doctor :{{ doctor.name }}
+        <li>Name :{{ doctor.name }}</li>
+        <li>Part :{{ doctor.part.get_name_display }}</li>
+        <li>Phone :{{ doctor.phone }}</li>
+        <li>Email :{{ doctor.email }}</li>
+    </ul>
+</div>
+<table border="1" cellspacing="1" cellpadding="8" style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightblue">
+        <th>Serial</th>
+        <th style="width:150px">Month</th>
+        <th style="width:150px">Date</th>
+        <th style="width:150px">Day</th>
+        <th style="width:120px">Count</th>
+        <th style="width:120px">Value</th>
+        <th style="width:120px">TotalValue</th>
+    </tr>
+    {% for cas in cases %}
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{cas.paid_date|date:'Y-F'}}</td>
+        <td>
+            <form action="{% url 'total_day' %}" method="POST">
+                {%csrf_token%}
+                <button value="{{cas.paid_date|date:'Y-m-d'}}" onclick="location.href='{% url 'total_day' %}'" name="date"
+                        style="height:25px;width:140px">{{cas.paid_date|date:'Y-m-d'}}</button>
+            </form>
+        </td>
+        <td>{{cas.paid_date|date:'l'}}</td>
+        <td>{{cas.total_count}}</td>
+        <td>{{cas.total_amount}}</td>
+        <td>{{cas.running_total}}</td>
+    </tr>
+    {% endfor %}
+    <tr style="font-size:18px;font-weight:bold" bgcolor="lightblue">
+        <td colspan="2">Count_Days :{{cases.count}}</td>
+        <td colspan="2">Count_Cases  :  {{count}}</td>
+        <td colspan="3">General_Total :{{total}}</td>
+    </tr>
+</table>
+<h2><b style="color:red"><a href="javascript:history.back()">Back</a></b></h2>
+{% endblock %}

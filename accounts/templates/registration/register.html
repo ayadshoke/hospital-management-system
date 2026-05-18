@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<p style="font-size:22px;font-weight:bold;text-align:center;color:blue">Register Page </p>
+<form action="" method="POST">
+    {% csrf_token %}
+    <label style="font-size:20px;font-weight:bold">UserName :</label>
+    <input type="text" name="username" required
+           style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightblue"><br><br>
+
+    <label style="font-size:20px;font-weight:bold">UserEmail  :</label>
+    <input type="email" name="email" required
+    style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightblue"><br><br>
+
+    <label style="font-size:20px;font-weight:bold">Password  .:</label>
+    <input type="password" name="password1" id="pass" required
+    style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightblue">
+    <button type="button" onclick="pass.type=pass.type==='password'?'text':'password'" style="height:30px">👁</button><br><br>
+    <script>let p = document.getElementBolb('pass');</script>
+
+    <label style="font-size:20px;font-weight:bold">Confirm :</label>
+    <input type="password" name="password2" id="pass2" required
+    style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightblue">
+    <button type="button" onclick="pass2.type=pass2.type==='password'?'text':'password'" style="height:30px">🍳</button><br><br>
+    <script>let p2=document.getElementBolb('pass2');</script><br>
+
+
+    <button type="submit" style="width:200px;font-size:18px;font-weight:bold;height:35px">register</button>
+    {% for field in form %}
+        {% for error in field.errors %}<br>
+        <p style="color:green"><b>{{ error }}</b></p>
+        {% endfor %}
+    {% endfor %}
+</form>
+{% if form.non_field_errors %}
+<ul>
+    {% for error in form.non_field_errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+</body>
+</html>
+
+<!--{% for field in form %}-->
+<!--    <div style="font-size:18px;width:200px;height:35px">-->
+<!--        {{ field.label_tag }}-->
+<!--        {{ field }}-->
+<!--    </div>-->
+<!--    <br>-->
+<!--    {% endfor %}-->

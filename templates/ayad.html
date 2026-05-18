@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="POST" action="">
+    {% csrf_token %}
+    <label for="pat">patient name :</label>
+    <select id="pat" name="patient">
+        {% for x in patients %}
+        <option value="{{ x.id }}">{{ x.name }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="d">doctor name :</label>
+    <select id="d" name="doctor">
+        {% for x in doctors %}
+        <option value="{{ x.id }}">{{ x.doc_name }}</option>
+        {% endfor %}
+        </select><br><br>
+
+    <label for="dt">detects :</label>
+    <select name="detect" id="dt">
+        {% for value , label in detects %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Save detect</button>
+</form>
+</body>
+</html>
+
+
+
+
+
+
+السيد بار
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>hospital</title>
+
+</head>
+<body>
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>القائمة</h2>
+        <p style="font-size=25px;font-weight:bold">welcome :{{user}}</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">تسجيل خروج 👨‍⚕️</a>
+        <a href="{% url 'profile' %}">👨‍⚕️profile</a>
+        <a href="{% url 'general_search' %}">🏠 home page</a>
+        <a href="{% url 'depart' %}">🏥 Departs</a>
+        <a href="{% url 'doc_list' %}">👨‍⚕️ Doctors</a>
+        <a href="{% url 'patient_list' %}">👨‍⚕️ Patient_list</a>
+        <a href="{% url 'appoint_list' %}">📅 Booking & inquery</a>
+        <a href="{% url 'days_list' %}">📅 Appoints</a>
+        <a href="{% url 'complete_cancel' %}">📅 Payments</a>
+        {% else %}
+        <a href="{% url 'register' %}">👨‍⚕️register</a>
+        <a href="{% url 'login' %}">تسجيل دخول👨‍⚕️</a>
+        {% endif %}
+    </div>
+
+</div>
+</body>
+</html>

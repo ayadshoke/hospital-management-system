@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>depart details</title>
+{% endblock %}
+
+{% block content %}
+<body>
+<ul>
+    <li>the details of doctor in depart  :{{ depart.get_name_display }}
+        <ul>
+            {% for doc in doctors %}
+            <li>doctor code : {{ doc.pk }}</li>
+            <li>doctor name :{{ doc.name }}</li>
+            <li> available :{{ doc.available }}</li>
+            <li>doctor mobile :{{ doc.phone }}</li>
+            <li>doctor email :{{ doc.email }}</li>
+            <li>days : </li>
+            <ul>
+                {% for d in doc.days_set.all %}
+                <li>{{d.get_day_display}}</li>
+                {% endfor %}
+            </ul>
+            <li>count detect for doctor :<a href="{% url 'doc_amount' doc.pk %}">&#8618;</a></li>
+            <li>cases for doctor :<a href="{% url 'doc_case' doc.pk %}">&#8618;</a></li>
+            {% endfor %}
+        </ul>
+        <b>the count of doctor in depart :{{ doctors.count }}</b>
+    </li>
+    <hr>
+</ul>
+<h3><b><a href="javascript:history.back()">Back</a></b></h3>
+</body>
+{% endblock content %}

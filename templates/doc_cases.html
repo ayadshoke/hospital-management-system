@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>cases</title>
+
+{% block style %}
+<style>
+    .container{
+    display:grid;
+    grid-template-columns:3fr 2fr}
+</style>
+{% endblock style %}
+{% endblock %}
+
+{% block content %}
+<body>
+<form action="{% url 'doc_case' pk %}" method="POST">
+    {% csrf_token %}
+    <label style="font-size:20px;font-weight:bold">Date_From :</label>
+    <input type="date" name="from"
+           style="font-size:15px;font-weight:bold;background-color:lightgreen;width:150px;height:30px">
+
+    <label style="font-size:20px;font-weight:bold">Date_To :</label>
+    <input type="date" name="to"
+           style="font-size:15px;font-weight:bold;background-color:lightgreen;width:150px;height:30px">
+    <button type="submit" style="width:100px;height:30px;font-size:18px;height:35px"><b>show</b></button>
+</form>
+<br><br>
+<hr>
+<div>
+    <ul style="font-size:16px;font-weight:bold">Details Doctor :{{doctor.name}}
+        <li>Name :{{ doctor.name }}</li>
+        <li>Part :{{ doctor.part.get_name_display }}</li>
+        <li>Phone :{{ doctor.phone }}</li>
+        <li>Email :{{ doctor.email }}</li>
+    </ul>
+</div>
+<table border="1" cellspacing="1" cellpadding="8" style="text-align:center ; vertical-align:middle">
+    <tr style="font-size:16px;background-color:#1660c4">
+        <th style="font-size:15px;width:60px">Serial</th>
+        <th style="width:150px">Detect_Date</th>
+        <th style="width:100px">Day</th>
+        <th style="width:150px">patient</th>
+        <th style="width:80px">age</th>
+        <th style="width:80px">area</th>
+        <th style="width:80px">detect</th>
+        <th style="width:80px">Status</th>
+        <th style="width:80px">value</th>
+        <th style="width:80px">Total</th>
+    </tr>
+    {% for x in cases %}
+    <tr style="font-size:14;font-weight:bold">
+        <td style="font-size:12">{{forloop.counter}}</td>
+        <td>{{x.created_at|date:'Y-m-d'}}</td>
+        <td>{{x.created_at|date:'l'}}</td>
+        <td><form action="{% url 'day_details' x.created_at %}" method="POST">
+                {% csrf_token %}
+                <button name="patient" onclick="location.href='{% url 'day_details' x.created_at %}'"
+                style="width:150px;height:22px" value="{{x.patient.name}}">{{x.patient.name}}</button>
+            </form></td>
+        <td>{{x.patient.age}}</td>
+        <td>{{x.patient.area}}</td>
+        <td>{{x.get_detect_display}}</td>
+        <td>{{x.get_status_display}}</td>
+        <td>{{x.detect_value}}</td>
+        <td>{{x.running_total}}</td>
+    </tr>
+    {% endfor %}
+    <tr style="font-size:18px;font-weight:bold;background-color:lightblue">
+        <td colspan="5">Count_Detect :{{cases.count}}</td>
+        <td colspan="6">General_Total :{{total}}</td>
+    </tr>
+</table>
+
+
+<h3><b style="color:red;font-size:25px"><a href="javascript:history.back()">Back</a></b></h3>
+</body>
+{% endblock %}

@@ -1,0 +1,54 @@
+rest framework
+يتم انشاء ملف serializer.py وده نعتبر زي ملف forms.py بالظبط
+اولا :  views
+يوجد عددانواع
+رقم 1 : function based view FBV
+دي عبارة عن decorator اعلي الدالة وفيها دالتين (get,post ) ليها url
+ تاني و (get.put,delete)وليها url وبيقبي فيه pk
+مهم : url بتاعهم العادي خالص
+
+
+رقم 2 : APIVew
+عبارة عن class وبنكتب بداخلة function وفيه 5 دوال
+2 عبارة عن (def get , def post) وليهم url واحد
+3 عبترة عن (def get , def put ,def delete)وبيشتغلوا علي url واحد وبيبقي فيه pk
+مهم : كل الدوال دي بتبقي داخل ال class يعني classواحد ونكتب بداخله كل الدوال
+مهم : url بنضيف الجزء ده  (as_view()) بعد اسم الدالة
+
+مهم : في rest بنستخدم كلمة serializer بدل form
+وبنستخدم request.data في post put بدل request.post
+
+رقم 3 :Generic views
+ليها دالتين واحد بتعمل get,post
+وواحده بتعمل get,put,delete
+مهم :  في دي لازم نكتب في url pk (Gener_Perm_pk(RetrieveUpdateDestroyAPIView)
+
+ViewSet : رقم4
+دي ليها داله واحده بس وurl واحد بس وبتشتغل لاكثر من موديل علي نفس url
+
+مهم جدا
+علشان اعمل فلتر ديناميكي يشمل :
+فلتر من خلال لسته
+ترتيب تصاعدي وتنازلي
+البحث
+يتم الاتي :
+تنزيل مكتبة django_filters (pip install django_filters)
+واضافتها في ملف setting في 1- rest_framework 2- في install apps
+بعد كده همل ملف filters.py داخل ال  app واستدعاء المكتبة
+بعد كده نربط ملف filters.py مع ملف api_views
+ثم الاضافة في كود ViewSet
+
+لاضافة مكتبة الي ملف المكتبات
+pip freeze > requirements.txt
+
+ملاحظات علي pandas
+Dataframe دي بتحول البيانات الي جدول زي الاكسيل بالظبط
+to_html دي بتعبت جدول جاهز مش انت اللي بتعملة وفي صفحة html نضيف كلمة safe بجوار key اللي رايح من views
+علشان نستخدم الدوال في pandasلازم البيانات تكون Dataframe بدون list
+max1 = data.max() دي لازم الجدول كله يكون قيم مافيش نصوص
+
+ملحوظه مهمه جدا
+اي حاجة بنعملها في serializer بتستخدم مع كل انواع views
+
+كلمة instance= تستخدم مع get ,put ,patch
+ نستخدمها في دالة الاضافة اما كلمة data=

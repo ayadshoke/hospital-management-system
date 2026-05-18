@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit_permissions</title>
+</head>
+<body>
+<p style="font-size:18px;font-weight:bold">All Permissions</p>
+<form action="{% url 'accounts:edit_permissions' id %}" method="GET">
+    {%csrf_token%}
+    <label style="font-size:18px;font-weight:bold" for="search">Search :</label>
+    <select name="type" id="search"
+    style="border-radius:5px;width:150px;height:30px;background-color:#f1f5f5;text-align:center;font-size:16px;font-weight:bold">
+        <option selected>type search</option>
+        <option value="Start">Start with</option>
+        <option value="End">End with</option>
+        <option value="Contain">Contain</option>
+    </select>
+    <input type="search" name="q" placeholder="input permission name" onchange="this.form.submit()"
+           style="border-radius:5px;width:250px;height:35px;background-color:#EAEAEA;text-align:center;font-size:16px;font-weight:bold">
+    <button style="border-radius:50px;width:35px;height:35px;font-weight:bold;font-size:18px"
+            onclick="window.location.reload(true)" title="refresh_page">&#x21bb;
+    </button>
+</form>
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {% for perm in permissions %}
+    <input type="checkbox" name="permission" value={{perm.id}}
+    {% if perm in item.user_permissions.all %}checked {% endif %}>
+    <label>{{perm.content_type.app_label}}|{{perm.name}}</label><br>
+    {%endfor %}
+    <br>
+    <button type="submit">save</button>--
+    <a href="{% url 'accounts:view_users' %}" style="font-size:16px;font-weight:bold">Back</a>
+
+</form>
+{% if permissions.has_other_pages %}
+    {% if permissions.has_previous %}
+            <a href="?page={{permissions.previous_page_number}}&pg={{pg}}"><b style="color;red">previous</b></a>
+    {% endif %}
+    {% for num in permissions.paginator.page_range %}
+            <b style="color:red"><a href="?page={{num}}&pg={{pg}}">{{ num }}</a></b>
+    {% endfor %}
+    {% if permissions.has_next %}
+            <a href="?page={{permissions.next_page_number}}&pg={{pg}}"><b style="color;red">next</b></a><br>
+    {% endif %}
+{% endif %}<br>
+<form method="GET" action="{% url 'accounts:edit_permissions' id %}">
+<label for="pag">page_count</label>
+    <select name="pages" id="pag" onchange="this.form.submit()" style="width:50px;text-align:center">
+        <option value="10" {% if per_page == 10 %} selected {% endif %}>10</option>
+        <option value="20" {% if per_page == 20 %} selected {% endif %}>20</option>
+        <option value="30" {% if per_page == 30 %} selected {% endif %}>30</option>
+        <option value="40" {% if per_page == 40 %} selected {% endif %}>40</option>
+        <option value="200" {% if per_page == 200 %} selected {% endif %}>all</option>
+    </select>
+</form>
+</body>
+</html>

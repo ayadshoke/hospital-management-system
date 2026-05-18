@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Title</title>
+{% endblock %}
+
+
+{% block content %}
+<!--login-->
+{% if page == 'login' %}
+<div>
+    <form method="POST" action="" style="text-align:center;height:100px">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" style="width:200px">login</button>
+        <a href="{% url 'reset_password' %}" style="text-align:center;font-size:20px;font-weight:bold">Forget Password?</a>
+    </form>
+</div>
+{% if messages %}
+{% for message in messages %}
+<h3><b style="color:red">{{ message }}</b></h3>
+{% endfor %}
+{% endif %}
+<p style="text-align:center;font-size:20px;font-weight:bold">haven signed up yet?</p>
+<p style="text-align:center;font-size:20px;font-weight:bold"><a href="{% url 'register' %}">sign up</a></p>
+<hr>
+<!--register-->
+{% else %}
+<div>
+    <form method="POST" action="" style="text-align:center">
+        {% csrf_token %}
+        <label style="font-size:20px;font-weight:bold">UserName : </label>
+        <input type="text" name="username" placeholder="Enter username"
+         style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightgreen"><br><br>
+
+        <label style="font-size:20px;font-weight:bold">Password : </label>
+        <input type="password" name="password1" placeholder="Enter password"
+        style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightgreen"><br><br>
+
+        <label style="font-size:20px;font-weight:bold">ConfirmPass : </label>
+        <input type="password" name="password2" placeholder="Confirm password"
+        style="font-size:18px;font-weight:bold;width:250px;height:25px;background-color:lightgreen"><br><br>
+        <button type="submit" style="width:200px;font-size:18px">register</button>
+        <br>
+        {% for field in form %}
+        {% for error in field.errors %}<br>
+        <p style="color:green"><b>{{ error }}</b></p>
+        {% endfor %}
+        {% endfor %}
+    </form>
+</div>
+{% if form.non_field_errors %}
+<ul>
+    {% for error in form.non_field_errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<p style="font-size:25px;font-weight:bold;text-align:center">already signed up yet?</p>
+<p style="font-size:25px;font-weight:bold;text-align:center"><a href="{% url 'login' %}">login</a></p>
+{% endif %}
+{% endblock content %}

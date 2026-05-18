@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>show_permission</title>
+{% endblock title %}
+
+{% block style %}
+<style>
+        .form-container{
+        display:grid;
+        grid-template-columns:3fr 5fr 4fr 3fr 2fr 2fr}
+
+        .links{
+            display:flex;
+            justify-content:space-between;}
+    </style>
+{% endblock %}
+
+{% block content %}
+<body>
+{% if not model and not add and not pk %}
+<p style="font-size:20px;font-weight:bold;text-align:center">View All Permissions :-</p>
+<div class="links">
+
+    <!--    البحث عن طريق الموديل-->
+
+    <form action="{% url 'accounts:permissions' %}" method="POST">
+        {% csrf_token %}
+        <label style="font-size:20px"><b>Choose Model :</b></label>
+        <select name="app" id="ap" onchange="this.form.submit()"
+                style="width:200px;height:40px;background-color:lightgreen">
+            <option></option>
+            {% for i in content %}
+            <option value="{{i.pk}}">{{i.model}}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!--    البحث عن طريق الصلاحية-->
+
+    <form action="{% url 'accounts:permissions' %}" method="POST">
+        {% csrf_token %}
+        <label style="font-size:20px"><b>Search :</b></label>
+        <input type="text" name="q" placeholder="enter permission" onchange="this.form.submit()"
+               style="width:200px;height:40px;background-color:lightgreen;font-size:16px;font-weight:bold">
+    </form>
+
+    <!--البحث عن طريق اليوزر  -->
+
+    <form action="{% url 'accounts:permissions' %}" method="POST">
+        {% csrf_token %}
+        <label style="font-size:20px;font-weight:bold">Select User :</label>
+        <input list="users_list" name="user" onchange="this.form.submit()"
+        style="width:200px;height:40px;background-color:lightgreen;font-size:16px;font-weight:bold">
+        <datalist id="users_list">
+            <option></option>
+            <option>no_user</option>
+            {% for user in users %}
+            <option value="{{user.username}}">
+            {%  endfor %}
+        </datalist>
+            </form>
+
+
+    <button onclick="location.href='{% url 'accounts:add_perm' %}'"
+            style="font-size:16px;font-weight:bold;height:40px;width:180px">Add Permissions :</button>ـــ
+    <button onclick="location.href='{% url 'accounts:show_model' %}'"
+            style="font-size:16px;font-weight:bold;height:40px;width:150px">Show Model :</button>
+</div>
+
+<!--<button onclick="location.href=?row={{row|add:'1'}}">next</button>-->
+{% if messages %}
+{% for message in messages %}
+<p style="font-size:20px;font-weight:bold;text-align:center;font-color:blue">{{message}}</p>
+{% endfor %}
+{% endif %}
+<table border="1" cellpadding="6" cellspacing="0"
+       style="text-align:center ; vertical-align:middle">
+    <tr style="height:45px;font-size:18px;font-weight:bold">
+        <th style="width:80px">serial</th>
+        <th style="width:400px">app</th>
+        <th style="width:400px">model</th>
+        <th style="width:300px">name</th>
+        <th style="width:300px">codename</th>
+        <th style="width:300px">user</th>
+        <th style="width:300px">cust_perm</th>
+        <th style="width:100px">Delete</th>
+    </tr>
+    {% for perm in permissions %}
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ perm.content_type.app_label }}</td>
+        <td>{{ perm.content_type.model }}</td>
+        <td>{{ perm.name }}</td>
+        <td>{{ perm.codename }}</td>
+        <td>
+            <table>
+                {% for user in perm.user_set.all %}
+                <tr>
+                    <td>{{ user }}</td>
+                    {% empty %}
+                    <td>no_user</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </td>
+        <td><a href="{% url 'accounts:cust_perm' perm.id %}">&#10227;</a></td>
+        <td><a href="{% url 'accounts:delete_perm' perm.codename %}">&#10006;</a></td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+{% endif %}
+
+<!--اضافة صلاحيات -->
+{% if add %}
+<p>view add permissions </p>
+<form action="{% url 'accounts:add_perm' %}" method="POST">
+    {% csrf_token %}
+    <label style="font-size:20px;font-weight:bold">model :</label>
+    <select name="model"
+            style="width:250px;height:40px;background-color:lightgreen;font-size:18px;font-weight:bold" required>
+        {% for i in content %}
+        <option value="{{i.pk}}">{{i.model}}</option>
+        {% endfor %}
+    </select><br><br>
+    <label style="font-size:20px;font-weight:bold">codename :</label>
+    <input type="text" name="codename" placeholder="input codename"
+           style="font-size:20px;font-weight:bold;width:250px;height:30px;background-color:lightgreen" required><br><br>
+
+    <label style="font-size:20px;font-weight:bold">permission :</label>
+    <input type="text" name="perm" placeholder="input permissions"
+           style="font-size:20px;font-weight:bold;width:250px;height:30px;background-color:lightgreen"><br><br>
+    <button type="submit" style="font-size:20px;font-weight:bold;width:250px;height:30px;background-color:lightgreen">
+        Add_perm
+    </button>
+</form>
+{% endif %}
+
+
+<!--شاشة تخصيص او تغيير اليوزر للصلاحية -->
+
+{% if pk %}
+<p style="font-size:25px;font-weight:bold;text-align:center">customize user :</p>
+<div style="font-size:20px;font-weight:bold">
+    <p>App_Name : {{perm.content_type.app_label}}</p>
+    <p>Model Name : {{perm.content_type.model}}</p>
+    <p>Perm Name : {{perm.name}}</p>
+    <p>Perm Codename : {{perm.codename}}</p>
+    {% for user in perm.user_set.all %}
+    <p>User :{{user}}</p>
+</div>
+{% endfor %}
+<form action="{% url 'accounts:cust_perm' perm.id %}" method="POST">
+    {% csrf_token %}
+    <p style="font-size:20px;font-weight:bold">Select User :</p>
+    {% for user in users %}
+    <input type="checkbox" name="user" id="u" value="{{user.id}}"
+           {% if not user.is_superuser %}
+           {% if user in perm_user %} checked {% endif %} {% endif %}>
+    <label for="u" style="font-size:20px;font-weight:bold">{{user.username}}</label><br>
+    {% endfor %}
+    <button type="submit" style="font-size:18px;font-weight:bold;width:100px;height:30px">assign</button>
+</form>
+{% endif %}
+
+
+
+<!--عرض كل الموديلات الموجوده في المشروع -->
+
+{% if model %}
+
+<div class="links">
+    <p style="font-size:20px;font-weight:bold;text-align:center">View All Models :-</p>
+    <button onclick="location.href='{% url 'accounts:permissions' %}'"
+            style="font-size:16px;font-weight:bold;height:40px;width:150px">Permissions :
+    </button>
+</div>
+<table border="1" cellpadding="8" cellspacing="0"
+       style="text-align:center ; vertical-align:middle">
+    <tr style="height:45px;font-size:18px;font-weight:bold">
+        <th>serial</th>
+        <th style="width:80px">pk</th>
+        <th style="width:250px">app_label</th>
+        <th style="width:250px">model</th>
+        <th style="width:150px">permission</th>
+        <th style="width:150px">Add_perm</th>
+    </tr>
+    {% for mod in content %}
+    <tr style=font-size:18px;font-weight:bold">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ mod.id }}</td>
+        <td>{{ mod.app_label }}</td>
+        <td>{{ mod.model }}</td>
+        <td><a href="{% url 'accounts:permissions' %}" title="show permissions in this model">&#8618;</a></td>
+        <td><a href="" title="add permissions for this model">&#10145;</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+</body>
+
+{% endblock %}

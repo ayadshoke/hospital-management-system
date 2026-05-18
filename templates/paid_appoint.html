@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>paid_appoint</title>
+{% endblock %}
+{% block content %}
+
+{% if part %}
+<p style="font-size:20px;font-weight:bold;color:blue;text-align:center">Part Name :{{part.get_name_display}}</p>
+{% endif %}
+
+<p style="font-size:20px;font-weight:bold;color:red"><u>Reservation Book : paid :-</u></p>
+
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightblue" style="font-size:16px">
+        <th>serial</th>
+        <th>patient name</th>
+        <th>patient age</th>
+        <th>patient area</th>
+        <th>depart name</th>
+        <th style="width:100px">doctor name</th>
+        <th>doctor phone</th>
+        <th>Detect</th>
+        <th>Value</th>
+        <th>employee</th>
+        <th style="width:100px">Date</th>
+        <th>Day</th>
+        <th>status</th>
+        <th>paid_stat</th>
+    </tr>
+    {% for app in paid_app %}
+    <tr style="font-size:14px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{app.patient.name }}</td>
+        <td>{{app.patient.age }}</td>
+        <td>{{app.patient.area }}</td>
+        <td>{{app.doctor.part.get_name_display }}</td>
+        <td>{{app.doctor.name }}</td>
+        <td>{{app.doctor.phone }}</td>
+        <td>{{app.get_detect_display }}</td>
+        <td>{{app.detect_value }}</td>
+        <td>{{app.employee }}</td>
+        <td>{{app.created_at|date:'Y-m-d' }}</td>
+        <td>{{app.created_at|date:'l'}}</td>
+        {% if app.status == '2'%}
+        <td style="background-color:green">{{app.get_status_display }}</td>
+        {% elif app.status == '3'%}
+        <td style="background-color:red">{{app.get_status_display }}
+            {% else %}
+        <td>{{app.get_status_display }}</td>
+        {% endif %}
+        <td>{{app.paid_stat}}</td>
+        {% endfor %}
+    <tr bgcolor="lightblue" style="height:35px">
+        <td style="font-size:18px;font-weight:bold">amount</td>
+        <td colspan="2" style="font-size:16px"><b>normal : {{ nor_value }}</b></td>
+        <td colspan="2" style="font-size:16px"><b>urgent : {{ ur_value }}</b></td>
+        <td colspan="2" style="font-size:15px"><b>total amount : {{ tot_value }}</b></td>
+        <td style="font-size:18px;font-weight:bold">count</td>
+        <td colspan="2" style="font-size:16px"><b><u>{{nor_count}}</u> <small>normal</small></b></td>
+        <td colspan="1" style="font-size:16px"><b><u>{{con_count}}</u> <small>consultation</small></b></td>
+        <td colspan="1" style="font-size:16px"><b><u>{{ur_count}}</u> <small>urgent</small></b></td>
+        <td colspan="2" style="font-size:16px"><b>total count : <u>{{tot_count}}</u> <small>detects</small></b></td>
+    </tr>
+</table>
+<button style="font-size:16px;width:100px;font-weight:bold"><a href="/reception/paid_appoint/?name=excel">load_excel</a></button>
+{% endblock%}

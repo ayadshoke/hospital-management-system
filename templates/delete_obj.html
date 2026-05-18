@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete_page</title>
+</head>
+<body>
+<form method="POST">
+    {% csrf_token %}
+    <h2><b>Are you sure you want to delete this ?: {{ obj }}</b></h2>
+    <button type="submit"><b>YES</b></button> <a href="javascript:history.back()">NO</a>
+</form>
+{% if messages %}
+    {% for message in messages %}
+    <h3><b style="color:green">{{ message }}</b></h3>
+    {% endfor %}
+    {% endif %}
+</body>
+</html>

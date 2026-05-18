@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>pay_date</title>
+    <style>
+        .form-container{
+        display:grid;
+        grid-template-columns:3fr 5fr 2fr 3fr}
+
+        .links{
+            display:flex;
+            justify-content:space-between;}
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <button style="width:130px;height:35px;font-weight:bold;font-size:18px"
+            onclick="window.location.reload(true)" title="refresh_page">&#x21bb;</button>
+    {% if not details %}
+    <form action="{% url 'day_details' date %}" method="POST">
+        {% csrf_token %}
+        <button onclick="this.form.submit()" title="show details of day"
+                style="width:130px;height:35px;font-weight:bold;font-size:18px;background-color:lightblue">Details :
+        </button>
+        <input name="date" value="{{date}}"
+               style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+    </form>
+    {% endif %}
+    <p style="font-size:20px;font-weight:bold;text-align:right"> اجمـــــالي يوم: </p>
+</div>
+
+<!--بيان اجمالي عدد الحالات خلال اليوم -->
+{% if not details %}
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightblue">
+        <th style="width:100px">serial</th>
+        <th style="width:300px">patient name</th>
+        <th style="width:200px">paid_date</th>
+        <th style="width:200px">day name</th>
+        {% for value,name in method %}
+        <th style="width:200px">{{name}}</th>
+        {% endfor %}
+        <th style="width:150px">amount</th>
+        <th style="width:150px">Patient_details</th>
+    </tr>
+    {% for x in payment %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{x.appoint__patient__name }}</td>
+        <td>{{x.paid_date|date:'Y-m-d' }}</td>
+        <td>{{x.paid_date|date:'l'}}</td>
+        <td>{{x.cash}}</td>
+        <td>{{x.visa}}</td>
+        <td>{{x.cheque}}</td>
+        <td>{{x.bank}}</td>
+        <td>{{x.total_value}}</td>
+        <td><a href="">&#8618;</a></td>
+    </tr>
+    {% endfor %}
+    <tr bgcolor="lightblue" style="height:35px">
+        <td colspan="2" style="font-size:18px"><b>Day: {{date}}</b></td>
+        <td colspan="2" style="font-size:18px"><b>cases : <u>{{pay_date.count}}</u></b></td>
+        <td colspan="" style="font-size:18px"><b>{{cash}}</b></td>
+        <td colspan="" style="font-size:18px"><b>{{visa}}</b></td>
+        <td colspan="" style="font-size:18px"><b>{{cheque}}</b></td>
+        <td colspan="" style="font-size:18px"><b>{{bank}}</b></td>
+        <td colspan="2" style="font-size:18px"><b>total_amount : <u>{{amount}}</u></b></td>
+    </tr>
+</table>
+<a href="{% url 'total_day' %}" style="font-size:20px;font-weight:bold;width:100px;height:30px;font-color:blue">Back</a>
+{% endif %}
+<br><hr>
+
+<!--بيان تفاصيل الحالال خلال اليوم -->
+{% if details %}
+<div class="links">
+<p style="font-size:20px;font-weight:bold;text-align:left;font-color:red">Details Day {{date}} :-</p>
+
+    <form action="{% url 'day_details' date %}" method="POST">
+    {% csrf_token %}
+    <label style="font-size:20px"><b>Select Method :</b></label>
+        <select name="type" onchange="this.form.submit()"
+                   style="font-size:18px;width:200px;height:30px;background-color:lightgreen">
+            {% for value,label in method %}
+            <option value="{{label}}">{{label}}</option>
+            {% endfor %}
+            <option selected></option>
+        </select>
+</form></div>
+
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightblue">
+        <th style="width:100px">serial</th>
+        <th style="width:300px">patient name</th>
+        <th style="width:200px">paid_date</th>
+        <th style="width:200px">day name</th>
+        <th style="width:150px">amount</th>
+        <th style="width:150px">paid_type</th>
+    </tr>
+    {% for x in qs %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{x.appoint.patient.name }}</td>
+        <td>{{x.paid_date|date:'Y-m-d' }}</td>
+        <td>{{x.paid_date|date:'l'}}</td>
+        <td>{{x.amount}}</td>
+        <td>{{x.paid_type}}</td>
+    </tr>
+    {% endfor %}
+    <tr bgcolor="lightblue" style="height:35px">
+        <td colspan="2" style="font-size:18px"><b>Day  : {{date}}</b></td>
+        <td colspan="1" style="font-size:18px"><b>cases : <u>{{count}}</u></b></td>
+        <td colspan="1" style="font-size:18px"><b>receipts : <u>{{qs.count}}</u></b></td>
+        <td colspan="3" style="font-size:18px"><b>total_amount : <u>{{day_amount}}</u></b></td>
+    </tr>
+</table>
+<a href="javascript:history.back()" style="font-size:20px;font-weight:bold;width:100px;height:30px;font-color:blue">Back</a>
+{% endif %}
+</body>
+</html>

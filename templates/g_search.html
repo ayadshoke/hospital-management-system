@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>Home Page</title>
+{% endblock%}
+
+
+{% block style %}
+<style>
+    .format{
+    font-size:18px;
+    font-weight:bold;
+    text-align:left;}
+
+    .calender{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    text-align:center;
+    max-width:350px;
+    margin-left:10px;}
+
+    .day-name{
+    font-weight:bold;
+    background:#eee;
+    }
+
+    .day{
+    border:1px;
+    solid:#ccc
+    }
+</style>
+{% endblock %}
+
+{% block content%}
+<!--التقويم-->
+<p style="font-size:18px;font-weight:bold">The Current Month :{{current_month}} / {{year}}</p>
+<div class="calender">
+    <div class="day-name">الاحد</div>
+    <div class="day-name">الاثنين</div>
+    <div class="day-name">الثلاثاء</div>
+    <div class="day-name">الاربعاء</div>
+    <div class="day-name">الخميس</div>
+    <div class="day-name">الجمعه</div>
+    <div class="day-name">السبت</div>
+    {% for week in cal %}
+    {% for day in week %}
+    {% if day == to_day.day %}
+    <div style="color:blue;background-color:lightgreen;font-size:20;font-weight:bold">{{day}}</div>
+    {% else%}
+    <div class="day">{{day}}</div>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+    <button onclick="location.href='?month={{next_month}}&year{{next_year}}'">next</button>ـــــ
+    <button onclick="location.href='?month={{prev_month}}&year{{prev_year}}'">previous</button>ـــــ
+    <button onclick="location.href='?'">current_date</button>
+
+</div>
+
+
+<!--شاشة البحث  -->
+
+<p style="font-size:25px;font-weight:bold;text-align:center;"><span style="background-color:lightgreen">شـــــاشـــــــــــة الاستــــــــــــــعلام</span>
+</p>
+<form action="{% url 'general_search' %}" method="POST" class="format">
+    {% csrf_token %}
+    <input id="by_slug" type="radio" name="search_type" value="slug">
+    <label for="by_slug">Number :</label>
+
+    <input id="by_patient" type="radio" name="search_type" value="patient">
+    <label for="by_patient">Patient :</label>
+
+    <input id="by_doctor" type="radio" name="search_type" value="doctor">
+    <label for="by_doctor">Doctor :</label>
+
+    <input id="by_depart" type="radio" name="search_type" value="depart">
+    <label for="by_depart">Depart :</label>
+
+    <input id="by_emp" type="radio" name="search_type" value="employee">
+    <label for="by_emp">Employee :</label><br>
+
+
+    <input type="search" name="query" placeholder="ادخل البيانات"
+           style="font-size:16px;width:400px;font-weight:bold;background-color:lightgreen;
+    text-align:center;height:35px"><br>
+
+    <input id="by_date" type="radio" name="search_type" value="date">
+    <label for="by_date">Date :</label><br>
+
+    <input type="date" name="query_date" placeholder="اختار التاريخ"
+           style="font-size:16px;width:400px;font-weight:bold;background-color:lightgreen;
+           text-align:center;height:35px">
+    <button type="submit"
+            style="font-size:20px;width:100px;font-weight:bold;
+           text-align:center;height:36px">Search
+    </button>
+</form>
+<br>
+
+
+<!--استعلام طبيب  -->
+
+<form action="{% url 'doc_list' %}" method="GET">
+    {% csrf_token %}
+    <label for="doc" style="font-size:18px;font-weight:bold">Select_Doctor</label>
+    <select name="search_doc" id="doc" onchange="this.form.submit()"
+            style="font-size:16px;width:200px;height:30px;background-color:lightgreen">
+        {% for x in docs %}
+        <option value="{{ x.id }}">{{ x.name }}</option>
+        {% endfor %}
+        <option selected></option>
+    </select>
+</form>
+
+
+<hr>
+<!--عرض البيانات-->
+<p style="font-size:18px;font-weight:bold;text-align:right"> -: البيانـــــــــــات</p>
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightgreen">
+        <th>serial</th>
+        <th>patient</th>
+        <th>age</th>
+        <th>area</th>
+        <th>doctor</th>
+        <th>depart</th>
+        <th>d_phone</th>
+        <th>detect</th>
+        <th>value</th>
+        <th>employee</th>
+        <th>created_at</th>
+        <th>day</th>
+        <th>status</th>
+        <th>paid_stat</th>
+        {% if appoint.paid_stat == False or appoint.status == '3' %}
+        <th>Update</th>
+        {% endif %}
+    </tr>
+    {% if appoints %}
+    {% for appoint in appoints %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{appoint.patient.name }}</td>
+        <td>{{appoint.patient.age }}</td>
+        <td>{{appoint.patient.area }}</td>
+        <td>{{appoint.doctor.name }}</td>
+        <td>{{appoint.doctor.part.get_name_display }}</td>
+        <td>{{appoint.doctor.phone }}</td>
+        <td>{{appoint.get_detect_display }}</td>
+        <td>{{appoint.detect_value }}</td>
+        <td>{{appoint.employee }}</td>
+        <td>{{appoint.created_at|date:'Y-m-d' }}</td>
+        <td>{{appoint.created_at|date:'l'}}</td>
+        {% if appoint.status == '2'%}
+        <td style="background-color:green">{{appoint.get_status_display }}</td>
+        {% elif appoint.status == '3'%}
+        <td style="background-color:red">{{appoint.get_status_display }}
+            {% else %}
+        <td>{{appoint.get_status_display }}</td>
+        {% endif %}
+        <td>{{appoint.paid_stat}}</td>
+        {% if appoint.paid_stat == False or appoint.status == '3' %}
+        <td><a href="{% url 'update_appoint' appoint.id %}">&#9998;</a></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    {% endif %}
+</table>
+
+
+{% if messages %}
+{% for message in messages %}
+<p style="font-size:20px;font-weight:bold">{{ message }}</p>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

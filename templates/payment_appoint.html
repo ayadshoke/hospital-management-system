@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>payments</title>
+{% endblock %}
+
+{% block style %}
+<style>
+    .check-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px 40px;}
+
+    .links{
+            display:flex;
+            justify-content:space-between;}
+</style>
+{% endblock style %}
+
+
+{% block content %}
+<!--صفحة الخزينة -->
+
+<p style="font-size:25px;font-weight:bold;text-align:center">
+    <button style="font-size:30px;font-weight:bold;font-color:red;height:45px;width:350px;background-color:lightgreen">
+        شــــــاشة الـــــــخزينة
+    </button>
+</p>
+{% if not pk %}
+<div class="links">
+    <button style="font-size:23px;font-weight:bold"> مبلغ اليوم : {{amount}}</button>
+    <button style="font-size:23px;font-weight:bold"> عدد الايصالات : {{count}}</button>
+    <button style="font-size:23px;font-weight:bold"> عدد الحالات : {{count2}}</button>
+    <button style="font-size:23px;font-weight:bold;text-align:right">اجمالي الايراد خلال اليوم :
+        {{date_pay|date:'d-m-Y'}}</button>
+</div><br>
+<div class="check-grid">
+    <button style="font-size:18px;font-weight:bold;text-align:left">Paid Date :{{date_pay}}</button>
+    <button style="font-size:18px;font-weight:bold">رقم الايصال القادم : 46000{{num}}</button>
+</div>
+{% endif %}
+
+<!--عرض الرسائل -->
+
+{% if messages %}
+{% for message in messages %}
+<p style="font-size:20px;font-weight:bold;text-align:center;height:30px">
+    <span style="background-color:lightgreen">{{ message }}</span></p>
+{% endfor %}
+{% endif %}
+
+<!--عرض كل المواعيد التي تم حجزها -->
+{% if not item %}
+<div class="links">
+    <p style="font-size:20px;font-weight:bold;color:red"><u>Reservation Book : unpaid :-</u></p>
+    <p><a href="{% url 'total_day' %}" style="font-size:25px;font-weight:bold">عرض المدفوعات اجمالي</a></p>
+    <p><a href="{% url 'paid' day %}" style="font-size:25px;font-weight:bold">تفاصيل اليوم</a></p>
+    {% if request.GET.order == '-created_at' %}
+    <button onclick='location.href="?order=created_at"' title="ترتيب تصاعدي"
+                style="font-size:14px;font-weight:bold;height:40px;width:100px">&#11014;
+    </button>
+    {% else %}
+    <button onclick='location.href="?order=-created_at"' title="ترتيب تنازلي"
+                style="font-size:14px;font-weight:bold;height:40px;width:100px">&#11015;
+    </button>
+    {% endif %}
+    <button style="width:130px;height:35px;font-weight:bold;font-size:18px"
+            onclick="window.location.reload(true)" title="refresh_page">&#x21bb;</button>
+</div>
+
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightblue">
+        <th style="width:40px">serial</th>
+        <th style="width:150px">patient</th>
+        <th style="width:40px">age</th>
+        <th style="width:80px">area</th>
+        <th style="width:100px">doctor</th>
+        <th style="width:100px">depart</th>
+        <th style="width:40px">detect</th>
+        <th style="width:40px">value</th>
+        <th style="width:100px">employee</th>
+        <th style="width:60px">created_at</th>
+        <th style="width:60px">day</th>
+        <th>status</th>
+        <th>paid_stat</th>
+        <th>payment</th>
+    </tr>
+    {% for appoint in appoints %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{appoint.patient.name }}</td>
+        <td>{{appoint.patient.age }}</td>
+        <td>{{appoint.patient.area }}</td>
+        <td>{{appoint.doctor.name }}</td>
+        <td>{{appoint.doctor.part.get_name_display }}</td>
+        <td>{{appoint.get_detect_display }}</td>
+        <td>{{appoint.detect_value }}</td>
+        <td>{{appoint.employee }}</td>
+        <td>{{appoint.created_at|date:'Y-m-d' }}</td>
+        <td>{{appoint.created_at|date:'l'}}</td>
+        <td>{{appoint.get_status_display }}</td>
+        <td>{{appoint.paid_stat}}</td>
+        <td><a href="{% url 'payment_appoint' appoint.id %}">&#8618;</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+
+
+
+
+
+
+<!--def payment_appoint-->
+<!--عرض تفاصيل الايصال الدفع-->
+
+{% if item %}
+<div class="check-grid">
+    <button style="font-size:18px;font-weight:bold;text-align:left">Paid Date :{{date_pay}}</button>
+    <button style="font-size:18px;font-weight:bold">رقم ايصال السداد : 46000{{num}}</button>
+</div>
+
+<p style="color:blue;font-size:18px;font-weight:bold">Data of Patient :-</p>
+<p style="color:red;font-size:22px;font-weight:bold">Are you sure you want to payment :{{item.patient}} / amount
+    :{{item.detect_value}}</p>
+<table border="1" cellspacing="1" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightgreen" style="height:40px;font-size:18px">
+        <th style="width:50px">serial</th>
+        <th style="width:100px">Patient</th>
+        <th style="width:100px">Doctor</th>
+        <th style="width:100px">Depart</th>
+        <th style="width:100px">Detect</th>
+        <th style="width:100px">Value</th>
+        <th style="width:100px">Employee</th>
+        <th style="width:100px">Created_at</th>
+        <th style="width:100px">Day</th>
+        <th style="width:80px">Status</th>
+    </tr>
+    <tr style="height:35px;font-size:16px;font-weight:bold">
+        <td>{{item.slug}}</td>
+        <td>{{item.patient.name }}</td>
+        <td>{{item.doctor.name }}</td>
+        <td>{{item.doctor.part.get_name_display }}</td>
+        <td>{{item.get_detect_display }}</td>
+        <td>{{item.detect_value }}</td>
+        <td>{{item.employee }}</td>
+        <td>{{item.created_at|date:'Y-m-d' }}</td>
+        <td>{{item.created_at|date:'l'}}</td>
+        <td>{{item.get_status_display }}</td>
+    </tr>
+</table>
+{% if piasters == 0  %}
+<p style="font-size:18px;font-weight:bold;text-align:center"> فقط وقدره : {{tafqeet}} جنيها لا غير</p>
+{% else %}
+<p style="font-size:18px;font-weight:bold;text-align:center"> فقط وقدره : {{tafqeet}} جنيها {{piasters}} قرشا لا غير</p>
+{% endif %}
+<hr>
+
+<!--طرق الدفع-->
+<form action="#" method="POST">
+    {% csrf_token %}
+    <p style="text-align:center;font-size:20px;font-weight:bold">: طــــــــــــــرق الــــــــــــــــدفع </p>
+    <div>
+    <input id="c" type="checkbox" name="method" value="cash">
+    <label for="c"><b style="color:green;font-size:20px">نقـــــــــدي</b></label>
+    <input type="number" name="amount" value="0" step="any"
+           style="font-size:18px;width:150px;height:25px;text-align:center;font-weight:bold"><br><br>
+
+    <input id="v" type="checkbox" name="method" value="visa">
+    <label for="v"><b style="color:green;font-size:20px">فـــــــــــيزا</b></label>
+    <input type="number" name="amount" value="0" step="any"
+           style="font-size:18px;width:150px;height:25px;text-align:center;font-weight:bold"><br><br>
+
+    <input id="ch" type="checkbox" name="method" value="cheque">
+    <label for="ch"><b style="color:green;font-size:20px">شيــــــــــك</b></label>
+    <input type="number" name="amount" value="0" step="any"
+           style="font-size:18px;width:150px;height:25px;text-align:center;font-weight:bold"><br><br>
+
+    <input id="bd" type="checkbox" name="method" value="bank">
+    <label for="bd"><b style="color:green;font-size:20px">ايداع بنكي</b></label>
+    <input type="number" name="amount" value="0" step="any"
+           style="font-size:18px;width:150px;height:25px;text-align:center;font-weight:bold"></div><br><br>
+
+    <button type="submit" onclick="window.print()"
+            style="width:150px;height:25px;font-weight:bold">payment
+    </button>
+    --<a href="javascript:history.back()"><b>NO</b></a>
+</form>
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>image</title>
+</head>
+<body>
+<p>{{item.email}}</p>
+<form action="" method="POST">
+    <img src="{{item.image.url}}">
+    {% csrf_token %}
+    <p>{{item.username}}</p>
+</form>
+</body>
+</html>

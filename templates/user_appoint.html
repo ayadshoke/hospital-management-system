@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+    <title>profile_user</title>
+{% endblock %}
+{% block style %}
+    <style>
+        .user-data{
+        display:flex;
+        justify-content:space-between;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<body>
+<div class="user-data">
+    <p style="font-size:25px;font-weight:bold"><u>Welcome :{{user}} :-</u></p>
+    <button onclick="location.href='{% url 'accounts:profile' %}'" style="font-size:20px;font-weight:bold;height:50px;width:200px">Profile User :</button>
+</div>
+<hr>
+<p style="font-size:25px;font-weight:bold;text-align:center">list of appoints :</p>
+{% if request.user.is_superuser %}
+<form action="{% url 'profile_user' %}" method="POST">
+    {% csrf_token %}
+    <label for="u"><b style="font-size:20px;font-weight:bold">select employee :</b></label>
+    <select name="user" id="u" onchange="this.form.submit()" style="width:150px;height:30px;background-color:lightgreen">
+        {% for id,name in users %}
+        <option value="{{ id }}">{{ name }}</option>
+        {% endfor %}
+        <option selected></option>
+    </select>
+</form><br>
+{% endif %}
+<table border="1" cellspacing="0" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="yellow" style="height:40px">
+        <th>serial</th>
+        {% if request.user.is_superuser %}
+        <th>employee</th>
+        {% endif %}
+        <th style="width:150px">patient name</th>
+        <th>patient age</th>
+        <th style="width:150px">doctor name</th>
+        <th>depart name</th>
+        <th style="width:50px">detect</th>
+        <th>detect_value</th>
+        <th style="width:120px">created_at</th>
+        <th>day name</th>
+        <th style="width:100px">status</th>
+        <th>paid_stat</th>
+    </tr>
+    {% for appoint in appoints %}
+    <tr style="font-size:17px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        {% if request.user.is_superuser %}
+        <td>{{appoint.employee }}</td>
+        {% endif %}
+        <td>{{appoint.patient.name }}</td>
+        <td>{{appoint.patient.age }}</td>
+        <td>{{appoint.doctor.name }}</td>
+        <td>{{appoint.doctor.part.get_name_display }}</td>
+        <td>{{appoint.get_detect_display }}</td>
+        <td>{{appoint.detect_value }}</td>
+        <td>{{appoint.created_at|date:'Y-m-d' }}</td>
+        <td>{{appoint.created_at|date:'l'}}</td>
+        {% if appoint.status == '2'%}
+        <td style="background-color:green">{{appoint.get_status_display }}</td>
+        {% elif appoint.status == '3'%}
+        <td style="background-color:red">{{appoint.get_status_display }}
+            {% else %}
+        <td>{{appoint.get_status_display }}</td>
+        {% endif %}
+        <td>{{appoint.paid_stat}}</td>
+    </tr>
+    {% endfor %}
+    <tr bgcolor="lightgreen" style="height:40px">
+        <td colspan="7"><b>THE COUNT OF DETECT : <u>{{ appoints.count }}</u> <small>detects</small></b></td>
+        <td colspan="7"><b>THE SUM OF AMOUNT DETECT : {{ total }}</b></td>
+
+    </tr>
+</table>
+</body>
+{% endblock content %}

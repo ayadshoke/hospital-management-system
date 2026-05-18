@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>doctor_list</title>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .links{
+        display:flex;
+        justify-content:space-between;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+{% if type == 'dddd' %}
+<button onclick="location.href='{% url 'days_list' %}'"
+        style="font-size:16px;font-weight:bold;width:200px;float:right">show_days</button>
+<br>
+
+
+<!--اضافة دكاترة-->
+<b style="font-size:22px;color:blue">Add Doctor :</b>
+<form method="POST" action="" id="#Adding_form" style="background-color:lightcyan">
+    {% csrf_token %}
+
+    <label style="font-size:20px;font-weight:bold">Name :</label>
+    <input type="text" name="name" placeholder="Enter name" required
+           style="border-radius:20px;width:300px;height:30px;background-color:lightgreen;font-size:18px;text-align:center">
+
+    <label style="font-size:20px;font-weight:bold" for="dept">Depart : </label>
+    <select name="depart" id="dept" required
+            style="border-radius:20px;width:300px;height:35px;background-color:lightgreen;font-size:18px;text-align:center">
+        <option value="" selected>--اختر القسم--</option>
+        {% for dep in depart %}
+        <option value="{{ dep.id }}">{{ dep.get_name_display }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label style="font-size:20px;font-weight:bold">Phone :</label>
+    <input type="number" name="phone" placeholder="Enter Phone" required
+           style="border-radius:20px;width:300px;height:30px;background-color:lightgreen;font-size:18px;text-align:center">
+
+    <label style="font-size:25px;font-weight:bold">Email :</label>
+    <input type="email" name="email" placeholder="Enter Email" required
+           style="border-radius:20px;width:300px;height:30px;background-color:lightgreen;font-size:18px;text-align:center"><br><br>
+
+    <label style="font-size:22px;font-weight:bold" for="ar">Area : </label>
+    <select id="ar" name="area" style="border-radius:20px;width:300px;height:35px;background-color:lightgreen;font-size:18px;text-align:center">
+        <option value="">--اختر المنطقة--</option>
+        {% for area in areas %}
+        <option value="{{ area.id }}">{{ area.get_name_display }}</option>
+        {% endfor %}
+    </select>
+    <button type="reset" style="width:120px;height:32px;font-weight:bold;float:right">تهيئة الشاشة</button>
+    <button type="submit" style="width:120px;height:32px;font-weight:bold;float:right">ADD_Doctor</button>
+</form><br>
+<hr>
+
+{% for field in form %}
+{% for error in field.errors %}<br>
+<p style="color:green"><b>{{ error }}</b></p>
+{% endfor %}
+{% endfor %}
+
+
+<!--البحث-->
+<form action="{% url 'doc_list' %}" method="GET">
+    {% csrf_token %}
+    <label for="s" style="font-size:25px;font-weight:bold">Search</label>
+    <input id="s" type="search" name="q" placeholder="search by name"
+           style="border-radius:20px;padding:10px;width:300px;height:30px;background-color:lightgreen;font-size:18px;text-align:center"
+           onchange="this.form.submit()">
+</form>
+<hr>
+
+
+<!--عرض البيانات الدكاترة-->
+<div class="links">
+    <p style="color:red;font-size:25px;font-weight:bold">list of doctors names :</p>
+<!--    <a href="{% url 'doc_list' %}?add=1"><p style="color:red;font-size:20px;font-weight:bold">Add Doctor</p></a>-->
+</div>
+<table border="1" cellspacing="0" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <thead bgcolor="lightblue">
+    <tr style="height:25px;">
+        <th style="width:30px">Serial</th>
+        <th style="width:100px">&#128100;</th>
+        <th style="width:80px">Depart</th>
+        <th style="width:25px">&#9742;</th>
+        <th style="width:100px">&#9993;</th>
+        <th style="width:200px">Day</th>
+        <th style="width:50px">Count_Days</th>
+        <th style="width:50px">Update</th>
+        <th style="width:50px">Detects</th>
+        <th style="width:100px">total</th>
+        <th style="width:30px">Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for doc in docs %}
+    <tr style="font-size:15px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{doc.name}}</td>
+        <td>{{doc.part.get_name_display}}</td>
+        <td>{{doc.phone}}</td>
+        <td>{{doc.email}}</td>
+        <td>
+            <table>
+                {% for d in doc.days_set.all %}
+                <tr>
+                    <td>{{d.get_day_display}}</td>
+                    <td>{{d.available}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </td>
+        <td>{{doc.days_set.all.count}} :days</td>
+        <td><a href="{% url 'doc_update' doc.pk %}">&#9998;</a></td>
+        <td><a href="{% url 'doc_case' doc.pk %}">{{doc.count}}</a></td>
+        <td><a href="{% url 'doc_amount' doc.pk %}">{{doc.amount}}</a></td>
+        <td><a href="{% url 'doc_delete' doc.pk %}" onclick="return window.confirm({{ doc.id }})">&#10006;</a></td>
+    </tr>
+    {% endfor %}
+    <tr bgcolor="lightblue" style="height:30px;font-size:17px">
+        <td colspan="5"><b>total count cases : {{ap.count}} cases</b></td>
+        <td colspan="3"><b>total amount cases : {{total}} pounds</b></td>
+        <td colspan="3"><b>count doc : {{docs.count}} doc</b></td>
+    </tr>
+    </tbody>
+</table>
+<br><br>
+{% if messages %}
+{% for message in messages %}
+<h3><b style="color:green">{{ message }}</b></h3>
+{% endfor %}
+{% endif %}
+<hr>
+
+
+<!--عرض جدول الايام-->
+{% else %}
+<button onclick="location.href='{% url 'doc_list' %}'"
+        style="font-size:16px;width:150px;float:right">show_doctors :</button>
+<form action="{% url 'days_details' %}" method="POST">
+    {% csrf_token %}
+    <h3><b>Choose Day :</b></h3>
+    <input type="submit" style="background-color:lightblue;width:80px;height:30px" value="Show">
+    <!--    <input type="reset" style="background-color:green" value="reset" >-->
+    {% for value,label in day %}
+    <input id="dd" type="radio" name="day" value="{{value}}">
+    <label for="dd"><b style="color:green;font-size:18px">{{label}}</b></label>
+    {% endfor %}
+</form>
+
+{% if messages %}
+{% for message in messages %}
+<p style="color:red;font-size:18px;font-weight;bold">{{ message }}</p>
+{% endfor %}
+{% endif %}
+<hr>
+<div class="links">
+    <p style="font-size:23px;font-weight:bold;color:blue">the schedule of doctors :</p>
+    <p style="font-size:23px;font-weight:bold;color:blue"><a href="{% url 'add_day' %}">Add_Day</a></p>
+</div>
+<table border="1" cellspacing="0" cellpadding="6"
+       style="text-align:center ; vertical-align:middle">
+    <tr bgcolor="lightblue" style="font-size:18px">
+        <th style="width:50px">serial</th>
+        <th style="width:100px">the_day</th>
+        <th style="width:300px">doctor name</th>
+        <th style="width:150px">doctor phone</th>
+        <th style="width:200px">doctor email</th>
+        <th style="width:100px">doctor available</th>
+        <th style="width:150px">Depart</th>
+        <th>Update</th>
+    </tr>
+    {% for day in days %}
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{day.get_day_display}}</td>
+        <td>{{day.doctor}}</td>
+        <td>{{day.doctor.phone}}</td>
+        <td>{{day.doctor.email}}</td>
+        <td>{{day.available}}</td>
+        <td>{{day.doctor.part.get_name_display}}</td>
+        <td><a href="{% url 'day_update' day.id%}">&#9998;</a></td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+{% endif %}
+<h3><a href="javascript:history.back()"><b style="color:blue;font-size:25px">Back</b></a></h3>
+{% endblock %}
+<!--    <label>doc active :</label>-->
+<!--    <input type="checkbox" {% if doc.available %}checked{% endif %} name="active"><br><br>-->

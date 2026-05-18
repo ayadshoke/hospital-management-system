@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>data analysis</title>
+    <style>
+        .links{
+            display:flex;
+            justify-content:space-between;}
+    </style>
+</head>
+<body>
+<!--data|safe-->
+<p style="font-size:20px;font-weight:bold;color:blue;text-align:center">appointments data</p>
+<table border="1" cellspacing="0" cellpadding="8" style="text-align:center">
+    <tr bgcolor="lightgreen">
+        <th>serial</th>
+        <th>patient</th>
+        <th>Doctor</th>
+        <th>detect</th>
+        <th style="width:100px">value</th>
+        <th style="width:150px">created_at</th>
+        <th>paid_stat</th>
+        <th>status</th>
+    </tr>
+    {% for p in data %}
+    <tr style="font-size:16px;font-weight:bold">
+        <td>{{forloop.counter}}</td>
+        <td>{{p.patient_id}}</td>
+        <td>{{p.doctor_id}}</td>
+        <td>{{p.detect}}</td>
+        <td>{{p.detect_value}}</td>
+        <td>{{p.created_at|date:'Y-m-d'}}</td>
+        <td>{{p.paid_stat}}</td>
+        <td>{{p.status}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<p style="font-size:20px;font-weight:bold;color:blue;text-align:center">data analysis</p>
+<div class="links" style="font-size:18px;font-weight:bold">
+    <p>اعلي قيمة :{{max}}</p>
+    <p>كود العميل صاحب اعلي قيمة :{{name_max}}</p>
+    <p>اقل قيمة:{{min}}</p>
+    <p>كودالعميل صاحب اقل قيمة :{{name_min}}</p>
+    <p>المتوسط :{{avar|floatformat:2}}</p>
+</div>
+<hr>
+<p style="font-size:20px;font-weight:bold">first row :{{head|safe}}</p>
+<p style="font-size:20px;font-weight:bold">last row :{{tail|safe}}</p>
+<p style="font-size:20px;font-weight:bold">new table :{{table|safe}}</p>
+<button onclick="location.href='{% url 'load_csv' %}'">Load csv</button>
+<button onclick="location.href='{% url 'load_excel' %}'">Load excel</button>
+</body>
+</html>

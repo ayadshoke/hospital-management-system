@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>hospital</title>
+
+</head>
+<body>
+<div class="container;font-size:12px">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button id="toggleBtn">⇄</button>
+        <p title="القائمة الرئيسية">Maim_Menu</p>
+        <p style="font-size=28px;font-weight:bold">welcome   :{{user}}</p>
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+        <button type="submit">تسجيل خروج 👨‍⚕️</button>
+            </form>
+        <a href="{% url 'accounts:profile' %}">👨‍⚕️profile</a>
+        {% if request.user.is_superuser %}
+        <a href="{% url 'accounts:permissions' %}">👨‍⚕️permissions</a>
+        {% endif %}
+        <a href="{% url 'general_search' %}">🏠 home page</a>
+        <a href="{% url 'patient_list' %}">👨‍⚕️ Patient_list</a>
+        <a href="{% url 'doc_list' %}">👨‍⚕️ Doctors</a>
+        <a href="{% url 'depart' %}">🏥 Departs</a>
+        <a href="{% url 'days_list' %}">📅 Appoints</a>
+        <a href="{% url 'appoint_list' %}">📅 Booking & inquery</a>
+        <a href="{% url 'cash_view' %}">📅 cash</a>
+        <a href="{% url 'payments' %}">📅 Payments</a>
+        <a href="{% url 'total_day' %}">🎞 Report</a>
+        {% else %}
+        <a href="{% url 'login' %}">تسجيل دخول👨‍⚕️</a>
+        {% endif %}
+    </div>
+
+</div>
+</body>
+</html>

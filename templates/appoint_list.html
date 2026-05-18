@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}
+<title>appoint_list</title>
+{% endblock %}
+
+{% block style %}
+<style>
+    .form-container{
+    display:grid;
+    grid-template-columns:3fr 5fr 4fr 3fr 2fr 2fr}
+
+    .links{
+        display:flex;
+        justify-content:space-between;}
+</style>
+{% endblock style %}
+
+{% block content %}
+
+
+<!--الاضافة وتحديث المواعيد-->
+<p>{{today.id}}</p>
+<div class="links">
+    <div>
+        <h2 style="text-align:center">اضافة مريض</h2>
+        <form method="POST" id="#patient_form" action="{% url 'patient_form' %}">
+            {% csrf_token %}
+            <label style="font-size:18px;font-weight:bold">Name:</label>
+            <input type="text" name="name" style="border-radius:5px;width:180px;height:25px;font-size:16px;font-weight:bold;text-align:center;background-color:#EAEAEA" placeholder="Enter name" required><br><br>
+
+            <label style="font-size:18px;font-weight:bold">Age--:</label>
+            <input type="number" name="age" style="border-radius:5px;width:180px;font-size:16px;font-weight:bold;height:25px;text-align:center;background-color:#EAEAEA" placeholder="Enter age" required><br><br>
+
+            <label style="font-size:18px;font-weight:bold">Select:</label>
+            <select name="area" id="area" required
+                    style="border-radius:5px;width:180px;font-size:16px;font-weight:bold;height:25px;text-align:center;background-color:#EAEAEA">
+                <option value="" disabled selected hidden>-- اختر المنطقة --</option>
+                {% for a in area %}
+                <option value="{{a.id}}">{{a.name}}</option>
+                {% endfor %}
+            </select><br><br>
+            <button type="submit" style="width:80px;height:30px">Add</button>
+            <button type="reset" style="width:80px;text-align:center">تهيئة</button>
+            <button style="font-size:16px;font-weight:bold;color:red;height:35px"><a href="{% url 'patient_list' %}">Patients</a></button>
+        </form>
+    </div>
+        <!--    اجراءات الحجز -->
+    <div>
+        <p style="color:blue;font-size:25px;font-weight:bold;text-align:center"><u>--اجراءات الحجز--</u></p>
+        <form id="#myform" method="POST" action=
+                "{% if pk %}{% url 'update_appoint' pk %}{% else %}{% url 'add_appoint' %}{%endif%}">
+            {% csrf_token %}
+            <label for="pat" style="font-size:20px;font-weight:bold">Patient:<span
+                    style="font-size:20px;color:red">*</span></label>
+            <select id="pat" name="patient" style="border-radius:5px;width:220px;height:30px;background-color:#EAEAEA;font-size:18px"
+                    required>
+                    <!--                السطر ده الخاص بالتعديل-->
+                <option selected value="{{ item.patient.id }}" disabled>{{ item.patient }}</option>
+                {% for x in patients %}
+                <option value="{{ x.id }}">{{ x.name }}</option>
+                {% endfor %}
+            </select><br><br>
+            <label for="doc" style="font-size:20px;font-weight:bold">Doctor:<span
+                    style="font-size:20px;color:red">*</span></label>
+            <select id="doc" name="doctor" style="border-radius:5px;width:225px;height:30px;background-color:#EAEAEA;font-size:18px"
+                    required>
+                <option selected value="{{ item.doctor.id }}">{{ item.doctor }}</option>
+                {% for x in doctors %}
+                <option value="{{ x.id }}">{{ x.name }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="det" style="font-size:20px;font-weight:bold">Type :-<span
+                    style="font-size:20px;color:red">*</span></label>
+            <select name="detect" id="det" style="border-radius:5px;width:230px;height:30px;background-color:#EAEAEA;font-size:18px"
+                    required>
+                <option selected value="{{ item.id }}">{{ item.get_detect_display }}</option>
+                {% for value , label in detects %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select><br><br>
+            <button type="submit" style="width:150px;text-align:center">{% if pk %}Update Detect {% else %}Add detect{% endif %}</button>
+            <button type="reset" style="width:100px;text-align:center">تهيئة الشاشة</button>
+        </form>
+    </div>
+    <div>
+            <!--            استعلام الطبيب -->
+        <form action="{% url 'days_list' %}" method="POST">
+            {% csrf_token %}
+            <label style="font-size:20px">Query Doctor :</label>
+            <select name="available" onchange="this.form.submit()"
+                    style="border-radius:5px;width:150px;height:30px;background-color:#EAEAEA;text-align:center;font-size:16px;font-weight:bold">
+                <option value="" disabled selected hidden>اختر اليوم</option>
+                <option value="{{today.id}}">{{today.get_day_display}}</option>
+                {% for value,label in days %}
+                <option value="{{value}}">{{label}}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <p style="font-size:18px;color:blue;font-weight:bold">Available Doctor in :{{day|date:'l'}}</p>
+        <table border="1" cellspacing="0" cellpadding="6"
+           style="text-align:center ; vertical-align:middle">
+                <tr>
+                    <th>m</th>
+                    <th style="width:100px">Doctor</th>
+                    <th style="width:80px">Part</th>
+                </tr>
+                {% for d in doc_day %}
+                <tr style="font-weight:bold">
+                    <td>{{forloop.counter}}</td>
+                    <td>{{d.name}}</td>
+                    <td>{{d.part.get_name_display}}</td>
+                </tr>
+                {% endfor %}
+        </table>
+    </div>
+</div>
+<hr>
+
+
+<!--نموزج البحث-->
+<h2><b style="color:blue">Show Reservation During</b></h2>
+<form action="{% url 'appoint_list' %}" method="POST">
+    {% csrf_token %}
+    <label for="s" style="font-size:20px;font-weight:bold"><b>Search :</b></label>
+    <input id="s" type="search" name="q" placeholder="search by name" title="search"
+           onchange="this.form.submit()"
+           style="width:200px;height:30px;background-color:lightblue;font-size:18px">
+    <label style="font-size:20px;font-weight:bold"><b>from :</b></label>
+    <input type="date" name="from" style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+
+    <label style="font-size:20px;font-weight:bold"><b>to :</b></label>
+    <input type="date" name="to" style="width:200px;height:30px;background-color:lightgreen;font-size:18px">
+    <button type="submit"><b>SHOW</b></button>
+</form>
+<hr>
+
+<!--عرض المواعيد-->
+<div class="links">
+    <button style="font-size:18px;font-weight:bold;height:30px"><u>Reservation Book : unpaid :-</u></button>
+    <button onclick="location.href='{% url 'paid_appoint' %}'" style="font-size:18px;font-weight:bold;height:30px">Paid_Reservation :</button>
+    <!--    <a href="{% url 'appoint_list' %}?add=1"><p style="font-size:20px;font-weight:bold;color:blue">Add Appoint</p></a>-->
+    <button style="width:80px;height:30px;font-weight:bold;font-size:18px"
+            onclick="window.location.reload(true)" title="refresh_page">&#x21bb;
+    </button>
+</div>
+{% if messages %}
+{% for message in messages %}
+<p style="font-size:20px;font-weight:bold;text-align:center;height:30px">
+    <span style="background-color:lightgreen">{{ message }}</span></p>
+{% endfor %}
+{% endif %}
+<div>
+    <table border="1" cellspacing="1" cellpadding="6"
+           style="text-align:center ; vertical-align:middle">
+        <tr bgcolor="#EAEAEA">
+            <th>serial</th>
+            <th>patient name</th>
+            <th>patient age</th>
+            <th>patient area</th>
+            <th>depart name</th>
+            <th>doctor name</th>
+            <th>doctor phone</th>
+            <th>Detect</th>
+            <th>Value</th>
+            <th>employee</th>
+            <th style="width:100px">Date</th>
+            <th>Day</th>
+            <th>status</th>
+            <th>paid_stat</th>
+            <th>Update</th>
+        </tr>
+        {% for appoint in appoints %}
+        {% if appoint.paid_stat == False %}
+        <tr style="font-size:15px;font-weight:bold">
+            <td>{{forloop.counter}}</td>
+            <td>{{appoint.patient.name }}</td>
+            <td>{{appoint.patient.age }}</td>
+            <td>{{appoint.patient.area }}</td>
+            <td>{{appoint.doctor.part.get_name_display }}</td>
+            <td>{{appoint.doctor.name }}</td>
+            <td>{{appoint.doctor.phone }}</td>
+            <td>{{appoint.get_detect_display }}</td>
+            <td>{{appoint.detect_value }}</td>
+            <td>{{appoint.employee }}</td>
+            <td>{{appoint.created_at|date:'Y-m-d' }}</td>
+            <td>{{appoint.created_at|date:'l'}}</td>
+            {% if appoint.status == '2'%}
+            <td style="background-color:green">{{appoint.get_status_display }}</td>
+            {% elif appoint.status == '3'%}
+            <td style="background-color:red">{{appoint.get_status_display }}
+                {% else %}
+            <td>{{appoint.get_status_display }}</td>
+            {% endif %}
+            <td>{{appoint.paid_stat}}</td>
+            <td><a href="{% url 'update_appoint' appoint.id %}">&#9998;</a></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        <tr bgcolor="lightblue" style="height:35px">
+            <td colspan="4" style="font-size:20px"><b>total count : <u>{{unpaid}}</u> <small>detects</small></b></td>
+            <td colspan="2" style="font-size:18px"><b><u>{{normal}}</u> <small>normal</small></b></td>
+            <td colspan="2" style="font-size:18px"><b><u>{{urgent}}</u> <small>urgent</small></b></td>
+            <td colspan="4" style="font-size:20px"><b>total amount : {{ total }}</b></td>
+            <td colspan="2" style="font-size:18px"><b>normal : {{ normal_amount }}</b></td>
+            <td colspan="2" style="font-size:18px"><b>urgent : {{ urgent_amount }}</b></td>
+        </tr>
+    </table>
+</div>
+
+
+<!--التقارير-->
+<hr>
+<div class="form-container" style="background-color:lightblue">
+    <h3><b><a href="{% url 'patient_list' %}#patient_form">Add_Patient</a></b></h3>
+    {% if request.user.is_superuser %}
+    <h3><b><a href="{% url 'doc_list' %}#Adding_form">Add_Doctor</a></b></h3>
+    <h3><b><a href="{% url 'depart' %}">Show_departs</a></b></h3>
+    {% endif %}
+    <h3><b><a href="{% url 'total_day' %}">Reports</a></b></h3>
+    <h3><b><a href="{% url 'days_list' %}">Doctors_table</a></b></h3>
+</div>
+<hr>
+{% endblock content %}
